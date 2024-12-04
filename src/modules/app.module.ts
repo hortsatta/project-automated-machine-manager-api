@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 import { CoreModule } from './core/core.module';
+import { MqttModule } from './mqtt/mqtt.module';
+import { DatabaseModule } from './database.module';
 
 @Module({
   imports: [
@@ -9,6 +11,8 @@ import { CoreModule } from './core/core.module';
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV}`,
     }),
+    DatabaseModule,
+    MqttModule,
     CoreModule,
   ],
   controllers: [],

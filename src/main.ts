@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import {
   NestFastifyApplication,
   FastifyAdapter,
@@ -17,6 +18,7 @@ async function bootstrap() {
 
   // Get config service to access env variables
   const configService = app.get<ConfigService>(ConfigService);
+
   // Enable cors with options
   app.enableCors({
     origin: JSON.parse(configService.get<string>('CORS_ORIGINS')),
@@ -54,6 +56,18 @@ async function bootstrap() {
   // Catch database specific errors/exception
   app.useGlobalFilters(new DatabaseExceptionFilter());
 
+  // Define and connect MQTT microservice
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.MQTT,
+    options: {
+      url: configService.get<string>('MQTT_URL'),
+      username: configService.get<string>('MQTT_USERNAME'),
+      password: configService.get<string>('MQTT_PASSWORD'),
+      clientId: `${configService.get<string>('MQTT_CLIENTID_PREFIX')}${Math.random().toString(16).slice(2)}`,
+    },
+  });
+
+  await app.startAllMicroservices();
   await app.listen(configService.get<number>('API_PORT') || 3001, '0.0.0.0');
 }
 bootstrap();
