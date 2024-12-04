@@ -13,7 +13,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: project-helmet-sanitizer-vm-api:latest
+    image: project-automated-machine-manager-api:latest
     ports:
       - '3001:3001'
     volumes:
